@@ -2,7 +2,7 @@
 
 ## Database diagram
 
-![Screenshot](https://github.com/godev111222333/shoe-backend/database-diagram.png)
+![Screenshot](https://github.com/godev111222333/shoe-backend/blob/main/database-diagram.png?raw=true)
 
 ## How to run
 
