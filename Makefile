@@ -13,4 +13,4 @@ migrate-down:
 	@migrate -path migration -database "mysql://root:password@(0.0.0.0:3306)/shoe" -verbose down
 
 dev-run:
-	@go run src/cmd/bot/main.go
+	@go run src/cmd/app/main.go

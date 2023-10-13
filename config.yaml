@@ -1,5 +1,10 @@
-host: 0.0.0.0
-port: 3306
-username: root
-password: password
-database: shoe
+database:
+  host: 0.0.0.0
+  port: 3306
+  username: root
+  password: password
+  database: shoe
+
+api:
+  host: 0.0.0.0
+  port: 9001
