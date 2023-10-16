@@ -27,7 +27,7 @@ func (s *APIServer) RegisterUser(c *gin.Context) {
 	user := &model.User{
 		Phone:     req.Phone,
 		Name:      req.Name,
-		Birthdate: req.Birthdate,
+		Birthdate: time.Now().UTC(),
 		AvatarURL: "",
 		Email:     req.Email,
 		Balance:   0,
@@ -48,13 +48,12 @@ func (s *APIServer) RegisterUser(c *gin.Context) {
 }
 
 type LoginRequest struct {
-	Phone string
-	OTP   string
+	Phone string `form:"phone"`
 }
 
-func (s *APIServer) Login(c *gin.Context) {
+func (s *APIServer) UserInfo(c *gin.Context) {
 	req := &LoginRequest{}
-	if err := c.BindJSON(req); err != nil {
+	if err := c.Bind(req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})

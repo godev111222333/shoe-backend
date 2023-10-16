@@ -7,6 +7,7 @@ import (
 )
 
 const (
+	RoutePing         = "RoutePing"
 	RouteRegisterUser = "RouteRegisterUser"
 	RouteLogin        = "RouteLogin"
 )
@@ -25,9 +26,16 @@ func (s *APIServer) AllRoutes() map[string]RouteInfo {
 			Handler: s.RegisterUser,
 		},
 		RouteLogin: {
-			Path:    "/login",
-			Method:  http.MethodPost,
-			Handler: s.Login,
+			Path:    "/user_info",
+			Method:  http.MethodGet,
+			Handler: s.UserInfo,
+		},
+		RoutePing: {
+			Path:   "/ping",
+			Method: http.MethodGet,
+			Handler: func(c *gin.Context) {
+				c.JSON(http.StatusOK, "pong")
+			},
 		},
 	}
 }
