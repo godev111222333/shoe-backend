@@ -23,3 +23,13 @@ func (s *UserStore) Create(user *model.User) error {
 
 	return nil
 }
+
+func (s *UserStore) GetByPhone(phone string) (*model.User, error) {
+	res := &model.User{}
+	if err := s.Db.Model(&model.User{}).Where("phone = ?", phone).First(res).Error; err != nil {
+		fmt.Println("error when get by phone", err)
+		return nil, err
+	}
+
+	return res, nil
+}

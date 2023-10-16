@@ -4,12 +4,10 @@ import "time"
 
 type User struct {
 	ID        int
-	Username  string
-	Password  string
+	Phone     string
 	Name      string
 	Birthdate time.Time
 	AvatarURL string
-	Phone     string
 	Email     string
 	Balance   int
 	CreatedAt time.Time
