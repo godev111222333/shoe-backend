@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	RouteGetUserInfo = "RouteRegisterUser"
+	RouteRegisterUser = "RouteRegisterUser"
+	RouteLogin        = "RouteLogin"
 )
 
 type RouteInfo = struct {
@@ -18,10 +19,15 @@ type RouteInfo = struct {
 
 func (s *APIServer) AllRoutes() map[string]RouteInfo {
 	return map[string]RouteInfo{
-		RouteGetUserInfo: {
+		RouteRegisterUser: {
 			Path:    "/register",
 			Method:  http.MethodPost,
 			Handler: s.RegisterUser,
+		},
+		RouteLogin: {
+			Path:    "/login",
+			Method:  http.MethodPost,
+			Handler: s.Login,
 		},
 	}
 }

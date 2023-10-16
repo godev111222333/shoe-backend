@@ -12,7 +12,6 @@ type RegisterUserRequest struct {
 	Phone     string    `json:"phone"`
 	Name      string    `json:"name"`
 	Birthdate time.Time `json:"birthdate"`
-	AvatarURL string    `json:"avatar_url"`
 	Email     string    `json:"email"`
 }
 
@@ -46,4 +45,29 @@ func (s *APIServer) RegisterUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status": "registered user successfully",
 	})
+}
+
+type LoginRequest struct {
+	Phone string
+	OTP   string
+}
+
+func (s *APIServer) Login(c *gin.Context) {
+	req := &LoginRequest{}
+	if err := c.BindJSON(req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	user, err := s.store.UserStore.GetByPhone(req.Phone)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
 }
