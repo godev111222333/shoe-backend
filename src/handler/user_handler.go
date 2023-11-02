@@ -116,7 +116,7 @@ func (s *APIServer) VerifyRegistration(c *gin.Context) {
 
 	if user == nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "otp not matched",
+			"error": "user not found",
 		})
 		return
 	}
