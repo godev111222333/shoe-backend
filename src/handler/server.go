@@ -10,16 +10,22 @@ import (
 )
 
 type APIServer struct {
-	cfg   *misc.APIConfig
-	route *gin.Engine
-	store *store.DbStore
+	cfg        *misc.APIConfig
+	route      *gin.Engine
+	store      *store.DbStore
+	otpService *OTPService
 }
 
-func NewAPIServer(cfg *misc.APIConfig, db *store.DbStore) *APIServer {
+func NewAPIServer(
+	cfg *misc.APIConfig,
+	db *store.DbStore,
+	otpService *OTPService,
+) *APIServer {
 	s := &APIServer{
-		cfg:   cfg,
-		route: gin.New(),
-		store: db,
+		cfg:        cfg,
+		route:      gin.New(),
+		store:      db,
+		otpService: otpService,
 	}
 
 	s.setUp()

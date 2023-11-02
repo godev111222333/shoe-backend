@@ -21,7 +21,9 @@ func main() {
 		panic(err)
 	}
 
-	apiServer := handler.NewAPIServer(cfg.APIConfig, dbStore)
+	otpService := handler.NewOTPService(dbStore, cfg.OTPConfig.Sender, cfg.OTPConfig.Password)
+
+	apiServer := handler.NewAPIServer(cfg.APIConfig, dbStore, otpService)
 	go func() {
 		if apiServer.Run() != nil {
 			panic(err)

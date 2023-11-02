@@ -1,1 +1,1 @@
-drop table otp;
+drop table otps;

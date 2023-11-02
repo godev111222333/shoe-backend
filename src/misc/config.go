@@ -9,6 +9,7 @@ import (
 type GlobalConfig struct {
 	DatabaseConfig *DbConfig  `yaml:"database"`
 	APIConfig      *APIConfig `yaml:"api"`
+	OTPConfig      *OTPConfig `yaml:"otp"`
 }
 
 type DbConfig struct {
@@ -22,6 +23,11 @@ type DbConfig struct {
 type APIConfig struct {
 	Host string `yaml:"host"`
 	Port string `yaml:"port"`
+}
+
+type OTPConfig struct {
+	Sender   string `yaml:"sender"`
+	Password string `yaml:"password"`
 }
 
 func LoadConfig(path string) (*GlobalConfig, error) {
