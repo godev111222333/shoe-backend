@@ -170,8 +170,8 @@ type UserResponse struct {
 }
 
 type VerifyLoginResponse struct {
-	AccessToken          string
-	AccessTokenExpiresAt time.Time
+	AccessToken          string    `json:"access_token"`
+	AccessTokenExpiresAt time.Time `json:"access_token_expires_at"`
 	*UserResponse
 }
 
