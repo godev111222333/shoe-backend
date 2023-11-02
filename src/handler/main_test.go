@@ -11,7 +11,15 @@ import (
 	"github.com/godev111222333/shoe-backend/src/store"
 )
 
-var TestDb *store.DbStore
+var (
+	OtpService    *OTPService
+	TestDb        *store.DbStore
+	TestAPIServer *APIServer
+)
+
+const (
+	ResetDB = false
+)
 
 func TestMain(m *testing.M) {
 	cfg, err := misc.LoadConfig("../../config.yaml")
@@ -19,11 +27,14 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	if err := ResetDb(cfg.DatabaseConfig); err != nil {
-		panic(err)
+	if ResetDB {
+		if err := ResetDb(cfg.DatabaseConfig); err != nil {
+			panic(err)
+		}
 	}
 
 	initTestDb(cfg.DatabaseConfig)
+	initServices(cfg)
 	code := m.Run()
 	os.Exit(code)
 }
@@ -34,6 +45,11 @@ func initTestDb(cfg *misc.DbConfig) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func initServices(cfg *misc.GlobalConfig) {
+	OtpService = NewOTPService(TestDb, cfg.OTPConfig.Sender, cfg.OTPConfig.Password)
+	TestAPIServer = NewAPIServer(cfg.APIConfig, TestDb, OtpService)
 }
 
 func ResetDb(cfg *misc.DbConfig) error {

@@ -7,9 +7,10 @@ import (
 )
 
 const (
-	RoutePing         = "RoutePing"
-	RouteRegisterUser = "RouteRegisterUser"
-	RouteLogin        = "RouteLogin"
+	RoutePing               = "RoutePing"
+	RouteRegisterUser       = "RouteRegisterUser"
+	RouteLogin              = "RouteLogin"
+	RouteVerifyRegisterUser = "RouteVerifyRegisterUser"
 )
 
 type RouteInfo = struct {
@@ -25,17 +26,17 @@ func (s *APIServer) AllRoutes() map[string]RouteInfo {
 			Method:  http.MethodPost,
 			Handler: s.RegisterUser,
 		},
-		RouteLogin: {
-			Path:    "/user_info",
-			Method:  http.MethodGet,
-			Handler: s.UserInfo,
-		},
 		RoutePing: {
 			Path:   "/ping",
 			Method: http.MethodGet,
 			Handler: func(c *gin.Context) {
 				c.JSON(http.StatusOK, "pong")
 			},
+		},
+		RouteVerifyRegisterUser: {
+			Path:    "/register/otp",
+			Method:  http.MethodPost,
+			Handler: s.VerifyRegistration,
 		},
 	}
 }

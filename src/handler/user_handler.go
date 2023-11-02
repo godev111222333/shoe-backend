@@ -78,13 +78,13 @@ func (s *APIServer) UserInfo(c *gin.Context) {
 }
 
 type VerifyRegistrationRequest struct {
-	Email string `form:"email"`
-	OTP   string `form:"otp"`
+	Email string `json:"email"`
+	OTP   string `json:"otp"`
 }
 
 func (s *APIServer) VerifyRegistration(c *gin.Context) {
 	req := &VerifyRegistrationRequest{}
-	if err := c.Bind(req); err != nil {
+	if err := c.BindJSON(req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
