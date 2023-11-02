@@ -132,3 +132,105 @@ func (s *APIServer) VerifyRegistration(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{})
 }
+
+type UserLoginRequest struct {
+	Email string `json:"email"`
+}
+
+func (s *APIServer) UserLogin(c *gin.Context) {
+	req := &UserLoginRequest{}
+	if err := c.BindJSON(req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if err := s.otpService.SendOTP(model.OTPTypeLogin, req.Email); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{})
+}
+
+type VerifyLoginRequest struct {
+	Email string `json:"email"`
+	OTP   string `json:"otp"`
+}
+
+type UserResponse struct {
+	Email     string `json:"email"`
+	Phone     string `json:"phone"`
+	Name      string `json:"name"`
+	Balance   int    `json:"balance"`
+	AvatarURL string `json:"avatar_url"`
+}
+
+type VerifyLoginResponse struct {
+	AccessToken          string
+	AccessTokenExpiresAt time.Time
+	*UserResponse
+}
+
+func (s *APIServer) VerifyLogin(c *gin.Context) {
+	req := &VerifyLoginRequest{}
+	if err := c.BindJSON(req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	isMatch, err := s.otpService.VerifyOTP(model.OTPTypeLogin, req.Email, req.OTP)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if !isMatch {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "invalid OTP",
+		})
+		return
+	}
+
+	accessToken, accessPayload, err := s.tokenMaker.CreateToken(req.Email, "user", 24*time.Hour)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	user, err := s.store.UserStore.GetByEmail(req.Email)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if user == nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+			"error": "user not found",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, &VerifyLoginResponse{
+		AccessToken:          accessToken,
+		AccessTokenExpiresAt: accessPayload.ExpiredAt,
+		UserResponse: &UserResponse{
+			Email:     user.Email,
+			Phone:     user.Phone,
+			Name:      user.Name,
+			Balance:   user.Balance,
+			AvatarURL: user.AvatarURL,
+		},
+	})
+}

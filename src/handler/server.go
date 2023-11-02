@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/godev111222333/shoe-backend/src/misc"
 	"github.com/godev111222333/shoe-backend/src/store"
+	"github.com/godev111222333/shoe-backend/src/token"
 )
 
 type APIServer struct {
@@ -14,6 +15,8 @@ type APIServer struct {
 	route      *gin.Engine
 	store      *store.DbStore
 	otpService *OTPService
+
+	tokenMaker token.Maker
 }
 
 func NewAPIServer(
@@ -21,11 +24,17 @@ func NewAPIServer(
 	db *store.DbStore,
 	otpService *OTPService,
 ) *APIServer {
+	tokenMaker, err := token.NewJWTMaker("12345678901234567890123456789012")
+	if err != nil {
+		panic(err)
+	}
+
 	s := &APIServer{
 		cfg:        cfg,
 		route:      gin.New(),
 		store:      db,
 		otpService: otpService,
+		tokenMaker: tokenMaker,
 	}
 
 	s.setUp()
@@ -48,7 +57,13 @@ func (s *APIServer) registerMiddleware() {
 }
 
 func (s *APIServer) registerHandlers() {
+	authGroup := s.route.Group("/").Use(authMiddleware(s.tokenMaker))
+
 	for _, r := range s.AllRoutes() {
-		s.route.Handle(r.Method, r.Path, r.Handler)
+		if !r.RequiredAuth {
+			s.route.Handle(r.Method, r.Path, r.Handler)
+		} else {
+			authGroup.Handle(r.Method, r.Path, r.Handler)
+		}
 	}
 }
