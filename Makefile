@@ -7,10 +7,10 @@ dev-down:
 		-f docker/docker-compose.yml down
 
 migrate-up:
-	@migrate -path migration -database "mysql://root:password@tcp(0.0.0.0:3306)/shoe" -verbose up
+	@migrate -path migration -database "mysql://root:password@tcp(0.0.0.0:3307)/shoe" -verbose up
 
 migrate-down:
-	@migrate -path migration -database "mysql://root:password@(0.0.0.0:3306)/shoe" -verbose down
+	@migrate -path migration -database "mysql://root:password@(0.0.0.0:3307)/shoe" -verbose down
 
 dev-run:
 	@go run src/cmd/app/main.go
