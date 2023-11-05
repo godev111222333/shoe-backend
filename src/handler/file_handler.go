@@ -20,14 +20,6 @@ func (s *APIServer) UploadImage(c *gin.Context) {
 		return
 	}
 
-	userID := c.GetHeader("userID")
-	if len(userID) == 0 {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "Please put userID in header",
-		})
-		return
-	}
-
 	imageID := strings.ReplaceAll(uuid.New().String(), "-", "")
 	imageExt := strings.Split(image.Filename, ".")[1]
 	ImageWithExt := fmt.Sprintf("%s.%s", imageID, imageExt)
@@ -38,18 +30,21 @@ func (s *APIServer) UploadImage(c *gin.Context) {
 		return
 	}
 
-	// save uuid to database
-	userIDInt, err := strconv.Atoi(userID)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
+	// save avatar for user to database
+	userID := c.GetHeader("user_id")
+	if len(userID) != 0 {
+		userIDInt, err := strconv.Atoi(userID)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, errorResponse(err))
+			return
+		}
 
-	if err = s.store.UserStore.UpdateUser(userIDInt, map[string]interface{}{
-		"avatar_url": imageID,
-	}); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse(err))
-		return
+		if err = s.store.UserStore.UpdateUser(userIDInt, map[string]interface{}{
+			"avatar_url": imageID,
+		}); err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
 	}
 
 	if err = s.store.FileStore.Create(&model.File{

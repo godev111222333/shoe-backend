@@ -14,6 +14,7 @@ type DbStore struct {
 	OTPStore     *OTPStore
 	FileStore    *FileStore
 	ProductStore *ProductStore
+	OrderStore   *OrderStore
 }
 
 func NewDbStore(cfg *misc.DbConfig) (*DbStore, error) {
@@ -30,5 +31,6 @@ func NewDbStore(cfg *misc.DbConfig) (*DbStore, error) {
 		OTPStore:     NewOTPStore(db),
 		FileStore:    NewFileStore(db),
 		ProductStore: NewProductStore(db),
+		OrderStore:   NewOrderStore(db),
 	}, nil
 }

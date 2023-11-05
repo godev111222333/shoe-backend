@@ -39,15 +39,15 @@ func (s *APIServer) GetProducts(c *gin.Context) {
 }
 
 type AddProductRequest struct {
-	Name        string `json:"name,omitempty"`
-	Description string `json:"description,omitempty"`
-	Price       int    `json:"price,omitempty"`
-	ImageURL    string `json:"image_url,omitempty"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Price       int    `json:"price"`
+	ImageURL    string `json:"image_url"`
 }
 
 func (s *APIServer) AddProduct(c *gin.Context) {
 	req := &AddProductRequest{}
-	if err := c.Bind(req); err != nil {
+	if err := c.BindJSON(req); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
