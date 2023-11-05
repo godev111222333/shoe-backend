@@ -9,10 +9,11 @@ import (
 )
 
 type DbStore struct {
-	Db        *gorm.DB
-	UserStore *UserStore
-	OTPStore  *OTPStore
-	FileStore *FileStore
+	Db           *gorm.DB
+	UserStore    *UserStore
+	OTPStore     *OTPStore
+	FileStore    *FileStore
+	ProductStore *ProductStore
 }
 
 func NewDbStore(cfg *misc.DbConfig) (*DbStore, error) {
@@ -24,9 +25,10 @@ func NewDbStore(cfg *misc.DbConfig) (*DbStore, error) {
 	}
 
 	return &DbStore{
-		Db:        db,
-		UserStore: NewUserStore(db),
-		OTPStore:  NewOTPStore(db),
-		FileStore: NewFileStore(db),
+		Db:           db,
+		UserStore:    NewUserStore(db),
+		OTPStore:     NewOTPStore(db),
+		FileStore:    NewFileStore(db),
+		ProductStore: NewProductStore(db),
 	}, nil
 }

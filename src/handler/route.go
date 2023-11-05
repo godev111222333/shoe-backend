@@ -14,6 +14,8 @@ const (
 	RouteVerifyLoginUser    = "RouteVerifyLoginUser"
 	RouteUploadImage        = "RouteUploadImage"
 	RouteGetImage           = "RouteGetImage"
+	RouteAddProduct         = "RouteAddProduct"
+	RouteGetProducts        = "RouteGetProducts"
 )
 
 type RouteInfo = struct {
@@ -67,6 +69,18 @@ func (s *APIServer) AllRoutes() map[string]RouteInfo {
 			Path:         "/image",
 			Method:       http.MethodGet,
 			Handler:      s.GetImage,
+			RequiredAuth: false,
+		},
+		RouteAddProduct: {
+			Path:         "/product/add",
+			Method:       http.MethodPost,
+			Handler:      s.AddProduct,
+			RequiredAuth: false,
+		},
+		RouteGetProducts: {
+			Path:         "/product",
+			Method:       http.MethodGet,
+			Handler:      s.GetProducts,
 			RequiredAuth: false,
 		},
 	}
