@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -51,22 +50,19 @@ func (s *APIServer) CreateOrder(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{})
 }
 
+type GetAllOrdersRequest struct {
+	UserID        int `form:"user_id"`
+	PaymentStatus int `form:"payment_status"`
+}
+
 func (s *APIServer) GetAllOrders(c *gin.Context) {
-	userID := c.Param("user_id")
-	paymentStatus := c.Param("payment_status")
-	userIDInt, err := strconv.Atoi(userID)
-	if err != nil {
+	req := &GetAllOrdersRequest{}
+	if err := c.Bind(req); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	paymentStatusInt, err := strconv.Atoi(paymentStatus)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	orders, err := s.store.OrderStore.GetOrdersByUserID(userIDInt, model.PaymentStatus(paymentStatusInt))
+	orders, err := s.store.OrderStore.GetOrdersByUserID(req.UserID, model.PaymentStatus(req.PaymentStatus))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -75,15 +71,18 @@ func (s *APIServer) GetAllOrders(c *gin.Context) {
 	c.JSON(http.StatusOK, orders)
 }
 
+type GetOrderDetailsRequest struct {
+	OrderID int `form:"order_id"`
+}
+
 func (s *APIServer) GetOrderDetails(c *gin.Context) {
-	orderID := c.Param("order_id")
-	orderIDInt, err := strconv.Atoi(orderID)
-	if err != nil {
+	req := &GetOrderDetailsRequest{}
+	if err := c.Bind(req); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	items, err := s.store.OrderStore.GetOrderDetails(orderIDInt)
+	items, err := s.store.OrderStore.GetOrderDetails(req.OrderID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
