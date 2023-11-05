@@ -1,12 +1,56 @@
 package handler
 
-import "testing"
+import (
+	"bytes"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
 
 func TestAPIServer_CreateOrder(t *testing.T) {
 	t.Parallel()
 
 	t.Run("create order success", func(t *testing.T) {
-		// Seed dummy product
+		routeInfo := TestAPIServer.AllRoutes()[RouteCreateOrder]
+		body := map[string]interface{}{
+			"user_id": 1,
+			"products": []struct {
+				ProductID int `json:"product_id"`
+				Quantity  int `json:"quantity"`
+				AtPrice   int `json:"at_price"`
+			}{
+				{
+					ProductID: 13,
+					Quantity:  5,
+					AtPrice:   1_000_000,
+				},
+				{
+					ProductID: 14,
+					Quantity:  5,
+					AtPrice:   1_000_000,
+				},
+				{
+					ProductID: 15,
+					Quantity:  5,
+					AtPrice:   1_000_000,
+				},
+				{
+					ProductID: 16,
+					Quantity:  5,
+					AtPrice:   1_000_000,
+				},
+			},
+		}
 
+		bz, err := json.Marshal(body)
+		require.NoError(t, err)
+		req, _ := http.NewRequest(routeInfo.Method, routeInfo.Path, bytes.NewReader(bz))
+
+		recorder := httptest.NewRecorder()
+		TestAPIServer.route.ServeHTTP(recorder, req)
+		require.Equal(t, http.StatusOK, recorder.Code)
 	})
 }

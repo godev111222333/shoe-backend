@@ -37,7 +37,7 @@ func (s *APIServer) CreateOrder(c *gin.Context) {
 		orderItems = append(orderItems, &model.OrderItem{
 			ProductID: product.ProductID,
 			AtPrice:   product.AtPrice,
-			Quantity:  product.AtPrice,
+			Quantity:  product.Quantity,
 			CreatedAt: now,
 			UpdatedAt: now,
 		})
