@@ -12,6 +12,7 @@ type DbStore struct {
 	Db        *gorm.DB
 	UserStore *UserStore
 	OTPStore  *OTPStore
+	FileStore *FileStore
 }
 
 func NewDbStore(cfg *misc.DbConfig) (*DbStore, error) {
@@ -26,5 +27,6 @@ func NewDbStore(cfg *misc.DbConfig) (*DbStore, error) {
 		Db:        db,
 		UserStore: NewUserStore(db),
 		OTPStore:  NewOTPStore(db),
+		FileStore: NewFileStore(db),
 	}, nil
 }

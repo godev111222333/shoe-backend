@@ -12,6 +12,8 @@ const (
 	RouteVerifyRegisterUser = "RouteVerifyRegisterUser"
 	RouteLoginUser          = "RouteLoginUser"
 	RouteVerifyLoginUser    = "RouteVerifyLoginUser"
+	RouteUploadImage        = "RouteUploadImage"
+	RouteGetImage           = "RouteGetImage"
 )
 
 type RouteInfo = struct {
@@ -53,6 +55,18 @@ func (s *APIServer) AllRoutes() map[string]RouteInfo {
 			Path:         "/login/otp",
 			Method:       http.MethodPost,
 			Handler:      s.VerifyLogin,
+			RequiredAuth: false,
+		},
+		RouteUploadImage: {
+			Path:         "/image/upload",
+			Method:       http.MethodPost,
+			Handler:      s.UploadImage,
+			RequiredAuth: false,
+		},
+		RouteGetImage: {
+			Path:         "/image",
+			Method:       http.MethodGet,
+			Handler:      s.GetImage,
 			RequiredAuth: false,
 		},
 	}
