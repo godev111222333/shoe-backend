@@ -19,6 +19,8 @@ const (
 	RouteCreateOrder        = "RouteCreateOrder"
 	RouteGetAllOrders       = "RouteGetAllOrders"
 	RouteGetOrderDetails    = "RouteGetOrderDetails"
+	RouteAdminLogin         = "RouteAdminLogin"
+	RouteAdminVerifyLogin   = "RouteAdminVerifyLogin"
 )
 
 type RouteInfo = struct {
@@ -102,6 +104,18 @@ func (s *APIServer) AllRoutes() map[string]RouteInfo {
 			Path:         "/order/detail",
 			Method:       http.MethodGet,
 			Handler:      s.GetOrderDetails,
+			RequiredAuth: false,
+		},
+		RouteAdminLogin: {
+			Path:         "/login/admin",
+			Method:       http.MethodPost,
+			Handler:      s.LoginAdmin,
+			RequiredAuth: false,
+		},
+		RouteAdminVerifyLogin: {
+			Path:         "/login/admin/otp",
+			Method:       http.MethodPost,
+			Handler:      s.VerifyAdminLogin,
 			RequiredAuth: false,
 		},
 	}

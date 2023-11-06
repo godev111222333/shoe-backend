@@ -1,6 +1,7 @@
 package store
 
 import (
+	"errors"
 	"fmt"
 	"github.com/godev111222333/shoe-backend/src/model"
 	"gorm.io/gorm"
@@ -36,6 +37,10 @@ func (s *UserStore) GetByPhone(phone string) (*model.User, error) {
 func (s *UserStore) GetByEmail(email string) (*model.User, error) {
 	res := &model.User{}
 	if err := s.Db.Model(&model.User{}).Where("email = ?", email).First(res).Error; err != nil {
+		if errors.Is(gorm.ErrRecordNotFound, err) {
+			return nil, nil
+		}
+
 		fmt.Println("error when get by email", err)
 		return nil, err
 	}

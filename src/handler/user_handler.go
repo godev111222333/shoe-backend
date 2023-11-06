@@ -23,6 +23,32 @@ func (s *APIServer) RegisterUser(c *gin.Context) {
 		return
 	}
 
+	existUser, err := s.store.UserStore.GetByEmail(req.Email)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	if existUser != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "User existed",
+		})
+		return
+	}
+
+	existEmployee, err := s.store.EmployeeStore.FindByEmail(req.Email)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	if existEmployee != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "Must not be duplicated with employee",
+		})
+		return
+	}
+
 	user := &model.User{
 		Phone:     req.Phone,
 		Name:      req.Name,
@@ -232,5 +258,97 @@ func (s *APIServer) VerifyLogin(c *gin.Context) {
 			Balance:   user.Balance,
 			AvatarURL: user.AvatarURL,
 		},
+	})
+}
+
+type LoginAdminRequest struct {
+	Email string `json:"email"`
+}
+
+func (s *APIServer) LoginAdmin(c *gin.Context) {
+	req := &LoginAdminRequest{}
+	if err := c.BindJSON(req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	admin, err := s.store.EmployeeStore.FindByEmail(req.Email)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	if admin == nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{})
+		return
+	}
+
+	if err := s.otpService.SendOTP(model.OTPTypeLogin, req.Email); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{})
+}
+
+type VerifyAdminLoginResponse struct {
+	AccessToken          string    `json:"access_token"`
+	AccessTokenExpiresAt time.Time `json:"access_token_expires_at"`
+	Name                 string    `json:"name"`
+}
+
+func (s *APIServer) VerifyAdminLogin(c *gin.Context) {
+	req := &VerifyLoginRequest{}
+	if err := c.BindJSON(req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	isMatch, err := s.otpService.VerifyOTP(model.OTPTypeLogin, req.Email, req.OTP)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if !isMatch {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "invalid OTP",
+		})
+		return
+	}
+
+	accessToken, accessPayload, err := s.tokenMaker.CreateToken(req.Email, "admin", 24*time.Hour)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	employee, err := s.store.EmployeeStore.FindByEmail(req.Email)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if employee == nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+			"error": "employee not found",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, &VerifyAdminLoginResponse{
+		AccessToken:          accessToken,
+		AccessTokenExpiresAt: accessPayload.ExpiredAt,
+		Name:                 employee.Name,
 	})
 }
